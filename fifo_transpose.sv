@@ -9,22 +9,22 @@ module fifo_transpose
     output [BITS-1:0] q
    );
 
-  logic [BITS-1:0] buf [DEPTH-1:0];
-  assign q = buf[0];
+  logic [BITS-1:0] tmp [DEPTH-1:0];
+  assign q = tmp[0];
 
   integer i;
   always_ff @(posedge clk, negedge rst_n)
     if (!rst_n) begin
         for (i = 0; i < DEPTH; i++)
-            buf[i] <= 0;
-    end else if (WrEn) begin // write vals at input to internal buffer
+            tmp[i] <= 0;
+    end else if (WrEn) begin // write vals at input to tmp buffer
       for (i = 0; i < DEPTH; i++)
-          buf[i] <= d[i];
+          tmp[i] <= d[i];
     end else if (en) begin // shift out vals
       for (i = 0; i < DEPTH - 1; i++) begin
-          buf[i] <= buf[i + 1];
+        tmp[i] <= tmp[i + 1];
       end
-      buf[DEPTH - 1] <= 0; // clear last element
+      tmp[DEPTH - 1] <= 0; // clear last element
     end
 
 endmodule
