@@ -1,4 +1,4 @@
-module fifo_transpose
+module transpose_fifo
   #(
     parameter DEPTH=8,
     parameter BITS=64
