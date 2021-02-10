@@ -1,9 +1,11 @@
 module memB_tb();
 
+localparam BITS_AB=8;
+localparam DIM=8;
 
 logic clk, rst_n, en;
-logic signed [7:0][7:0] Bin;
-logic signed [7:0][7:0] Bout;
+logic signed [BITS_AB-1:0] Bin [DIM-1:0];
+logic signed [BITS_AB-1:0] Bout [DIM-1:0];
 
 
 
@@ -28,11 +30,14 @@ initial begin
 
 	for(integer i = 0; i < 8; i++)begin
 
-		
+		Bin[i] = $random();
 
 
 	end
 
+	#25;
+
+	$stop;
 
 end
 
