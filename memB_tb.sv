@@ -16,8 +16,10 @@ module memB_tb();
   logic signed [BITS_AB-1:0] Bin  [DIM-1:0];
   logic signed [BITS_AB-1:0] Bout [DIM-1:0];
 
+  integer mycycle;
+
   memB #(.BITS_AB(BITS_AB), .DIM(DIM)) 
-     DUT(.clk(clk), .rst_n(rst_n), .en(en), .WrEn(WrEn), .Bin(Bin), .Bout(Bout));
+     memDUT(.clk(clk), .rst_n(rst_n), .en(en), .WrEn(WrEn), .Bin(Bin), .Bout(Bout));
 
   systolic_array #(.BITS_AB(BITS_AB), .BITS_C(BITS_C), .DIM(DIM)) DUT (.*);
   systolic_array_tc #(.BITS_AB(BITS_AB), .BITS_C(BITS_C), .DIM(DIM)) satc;
@@ -69,12 +71,12 @@ module memB_tb();
 
         // check against test case
         for(int rowcol = 0; rowcol < DIM; ++rowcol) begin
-            Btest = satc.get_next_B(col);
+            Btest = satc.get_next_B(rowcol);
             if (Btest !== Bout[rowcol]) begin
                 errors++;
             end
         end
-
+    end
 
     // check errors
     if (errors > 0)
