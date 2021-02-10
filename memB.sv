@@ -17,5 +17,4 @@ module memB
     end
   endgenerate
 
-
 endmodule
