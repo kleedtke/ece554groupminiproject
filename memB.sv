@@ -12,7 +12,7 @@ module memB
   genvar i;
   generate 
     for (i = 0; i < DIM; i++) begin
-        fifo #(.DEPTH(DIM + 1), .BITS(BITS_AB)) 
+      fifo #(.DEPTH(DIM + i), .BITS(BITS_AB)) 
              f(.clk(clk), .rst_n(rst_n), .en(en), .d(Bin[i]), .q(Bout[i]));
     end
   endgenerate
