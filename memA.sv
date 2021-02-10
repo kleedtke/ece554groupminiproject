@@ -13,7 +13,7 @@ module memA
   logic [BITS_AB-1:0] Atmp [DIM-1:1];
   logic [DIM-1:0] wr;
 
-  fifo_transpose #(.BITS(BITS_AB))
+  transpose_fifo #(.BITS(BITS_AB))
                 ft(.clk(clk), .rst_n(rst_n), .en(en), .WrEn(wr[0]), .d(Ain), .q(Aout[0]));
 
   always_comb begin
@@ -24,7 +24,7 @@ module memA
   genvar i;
   generate
     for(i=1; i<DIM; i++) begin
-      fifo_transpose #(.BITS(BITS_AB))
+      transpose_fifo #(.BITS(BITS_AB))
                      t(.clk(clk), .rst_n(rst_n), .en(en), .WrEn(wr[i]), .d(Ain), .q(Atmp[i]));
       fifo #(.DEPTH(i),.BITS(BITS_AB)) 
            f(.clk(clk), .rst_n(rst_n), .en(en), .d(Atmp[i]), .q(Aout[i]));
