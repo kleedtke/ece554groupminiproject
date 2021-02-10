@@ -19,9 +19,9 @@ module memB_tb();
   integer mycycle;
 
   memB #(.BITS_AB(BITS_AB), .DIM(DIM)) 
-     memDUT(.clk(clk), .rst_n(rst_n), .en(en), .WrEn(WrEn), .Bin(Bin), .Bout(Bout));
+     memDUT(.clk(clk), .rst_n(rst_n), .en(en), .Bin(Bin), .Bout(Bout));
 
-  systolic_array #(.BITS_AB(BITS_AB), .BITS_C(BITS_C), .DIM(DIM)) DUT (.*);
+  //systolic_array #(.BITS_AB(BITS_AB), .BITS_C(BITS_C), .DIM(DIM)) DUT (.*);
   systolic_array_tc #(.BITS_AB(BITS_AB), .BITS_C(BITS_C), .DIM(DIM)) satc;
 
   integer errors, mycycles;
