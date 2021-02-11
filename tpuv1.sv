@@ -13,12 +13,12 @@ module tpuv1
     input [ADDRW-1:0] addr
    );
 
-logic [BITS_AB-1:0] A [DIM-1:0];
-logic [BITS_AB-1:0] B [DIM-1:0];
-logic [BITS_C-1:0]  Cin [DIM-1:0];
+logic signed [BITS_AB-1:0] A [DIM-1:0];
+logic signed [BITS_AB-1:0] B [DIM-1:0];
+logic signed [BITS_C-1:0]  Cin [DIM-1:0];
 logic [$clog2(DIM)-1:0] Crow;
-logic [BITS_AB-1:0] A_memTo_array [DIM-1:0];
-logic [BITS_AB-1:0] B_memTo_array [DIM-1:0];
+logic signed[BITS_AB-1:0] A_memTo_array [DIM-1:0];
+logic signed[BITS_AB-1:0] B_memTo_array [DIM-1:0];
 
    
 systolic_array
@@ -30,14 +30,14 @@ systolic_array
   ourSystolic_array(
    .clk(clk), .rst_n(rst_n), .WrEn(r_w), .en(1'b1),
    .A(A_memTo_array), .B(B), .Cin(Cin),
-   .Crow(Crow), .Cout(dataOut)
+   .Crow(Crow), .Cout()
    );
 
 memA
 #(.BITS_AB(BITS_AB), .DIM(DIM))
   ourMemA(
 	.clk(clk), .rst_n(rst_n), .WrEn(r_w), .en(1'b1),
-	.Ain(A), .Arow(1'b0), .Aout(A_memTo_array));
+	.Ain(A), .Arow(3'b000), .Aout(A_memTo_array));
 
 memB
 #(.BITS_AB(BITS_AB), .DIM(DIM))
