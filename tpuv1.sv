@@ -13,8 +13,8 @@ module tpuv1
     input  [ADDRW-1:0] addr
    );
 
-  logic signed [BITS_AB-1:0] A [DIM-1:0];
-  logic signed [BITS_AB-1:0] B [DIM-1:0];
+  logic signed [BITS_AB-1:0] Ain [DIM-1:0];
+  logic signed [BITS_AB-1:0] Bin [DIM-1:0];
   logic signed [BITS_C-1:0] Cin [DIM-1:0];
   logic [$clog2(DIM)-1:0] Crow;
   logic [2:0] Arow;
@@ -28,13 +28,13 @@ module tpuv1
   logic [$clog2(DIM*3)-1:0] matmul;
    
   systolic_array #(.BITS_AB(BITS_AB), .BITS_C(BITS_C), .DIM(DIM))
-  		sa(.clk(clk), .rst_n(rst_n), .WrEn(WrEnC), .en(en), .A(A), .B(B), .Cin(Cin), .Crow(Crow), .Cout(C_memTo_array));
+  		sa(.clk(clk), .rst_n(rst_n), .WrEn(WrEnC), .en(en), .A(Ain), .B(Bin), .Cin(Cin), .Crow(Crow), .Cout(C_memTo_array));
 
   memA #(.BITS_AB(BITS_AB), .DIM(DIM)) // not sure about Arow
-      mA(.clk(clk), .rst_n(rst_n), .WrEn(WrEnA), .en(en), .Ain(A), .Arow(3'b000), .Aout(A_memTo_array));
+      mA(.clk(clk), .rst_n(rst_n), .WrEn(WrEnA), .en(en), .Ain(Ain), .Arow(Arow), .Aout(A_memTo_array));
 
   memB #(.BITS_AB(BITS_AB), .DIM(DIM))
-      mB(.clk(clk), .rst_n(rst_n), .en(WrEnB || en), .Bin(B), .Bout(B_memTo_array));
+      mB(.clk(clk), .rst_n(rst_n), .en(WrEnB || en), .Bin(Bin), .Bout(B_memTo_array));
 
   // MMIO Address		R/W		TPUv1 location
   // 0x0100 - 0x013f		W		A[0][0], A[0][1], ... A[7][7]
@@ -45,9 +45,18 @@ module tpuv1
   assign WrEnA = (addr[15:8] == 8'h01) && r_w;
   assign WrEnB = (addr[15:8] == 8'h02) && r_w;
   assign WrEnC = (addr[15:8] == 8'h03) && r_w;
+  
+  assign Arow = addr[5:3];
+  assign Crow = addr[6:4];
 
   typedef enum {IDLE, MATMUL} state;
   state curr_state, next_state;
+
+  // assign Cin = 
+  // assign Ain = 
+  // assign Bin = 
+  // assign dataOut = ... Cout
+
 
   always_ff @(posedge clk, negedge rst_n) begin
     if (!rst_n) begin
