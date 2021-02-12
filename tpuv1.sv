@@ -1,92 +1,89 @@
 module tpuv1
-  #(
+#(
     parameter BITS_AB=8,
     parameter BITS_C=16,
     parameter DIM=8,
     parameter ADDRW=16,
     parameter DATAW=64
-    )
-   (
-    input  clk, rst_n, r_w, // r_w=0 read, =1 write
-    input  [DATAW-1:0] dataIn,
-    output [DATAW-1:0] dataOut,
-    input  [ADDRW-1:0] addr
-   );
+)
+(
+    input clk, rst_n, r_w, // r_w=0 read, =1 write
+    input [DATAW-1:0] dataIn,
+    input [ADDRW-1:0] addr,
+    output [DATAW-1:0] dataOut
+);
 
-  logic signed [BITS_AB-1:0] Ain [DIM-1:0];
-  logic signed [BITS_AB-1:0] Bin [DIM-1:0];
-  logic signed [BITS_C-1:0] Cin [DIM-1:0];
-  logic [$clog2(DIM)-1:0] Crow;
-  logic [2:0] Arow;
+logic signed [BITS_AB-1:0] Ain [DIM-1:0];
+logic signed [BITS_AB-1:0] Bin [DIM-1:0];
+logic WrEnA, WrEnB, WrEnC, en;
+logic [$clog2(DIM)-1:0] Arow, Crow;
+logic signed [BITS_AB-1:0] Amid [DIM-1:0];
+logic signed [BITS_AB-1:0] Bmid [DIM-1:0];
+logic signed [BITS_C-1:0] Cin  [DIM-1:0];
+logic signed [BITS_C-1:0] Cout [DIM-1:0];
+logic matmul_rst;
+logic matmul_en;
+logic [$clog2(DIM*3)-1:0] matmul_cnt;
 
-  logic signed[BITS_AB-1:0] A_memTo_array [DIM-1:0];
-  logic signed[BITS_AB-1:0] B_memTo_array [DIM-1:0];
-  logic signed[BITS_C-1:0] C_memTo_array [DIM-1:0];
+memA  #(.BITS_AB(BITS_AB), .DIM(DIM))
+  memA (.clk(clk), .rst_n(rst_n), .en(en), .WrEn(WrEnA), .Ain(Ain), .Arow(Arow), .Aout(Amid));
 
-  logic WrEnA, WrEnB, WrEnC, en;
+memB  #(.BITS_AB(BITS_AB), .DIM(DIM))
+  memB (.clk(clk), .rst_n(rst_n), .en(WrEnB || en), .Bin(Bin), .Bout(Bmid));
 
-  logic [$clog2(DIM*3)-1:0] matmul;
-   
-  systolic_array #(.BITS_AB(BITS_AB), .BITS_C(BITS_C), .DIM(DIM))
-  	  sa(.clk(clk), .rst_n(rst_n), .WrEn(WrEnC), .en(en), .A(A_memTo_array), .B(B_memTo_array), .Cin(Cin), .Crow(Crow), .Cout(C_memTo_array));
+systolic_array #(.BITS_AB(BITS_AB), .BITS_C(BITS_C), .DIM(DIM))
+             sA (.clk(clk), .rst_n(rst_n), .WrEn(WrEnC), .en(WrEnC || en),
+                 .A(Amid), .B(Bmid), .Cin(Cin), .Crow(Crow), .Cout(Cout));
 
-  memA #(.BITS_AB(BITS_AB), .DIM(DIM)) // not sure about Arow
-      mA(.clk(clk), .rst_n(rst_n), .WrEn(WrEnA), .en(en), .Ain(Ain), .Arow(Arow), .Aout(A_memTo_array));
+typedef enum {IDLE, MATMUL} state_t;
+state_t curr_state, nxt_state;
 
-  memB #(.BITS_AB(BITS_AB), .DIM(DIM))
-      mB(.clk(clk), .rst_n(rst_n), .en(WrEnB || en), .Bin(Bin), .Bout(B_memTo_array));
+assign WrEnA = (addr[15:8] == 8'h01) && r_w;
+assign Arow = addr[5:3];
+assign WrEnB = (addr[15:8] == 8'h02) && r_w;
+assign Crow = addr[6:4];
+assign Cin  = ~addr[3] ? {>>16{{>>{Cout[7:4]}}, dataIn}} : {>>16{dataIn, {>>{Cout[3:0]}}}};
+assign WrEnC = (addr[15:8] == 8'h03) && r_w;
+assign Ain = {>>8{dataIn}};
+assign Bin = (WrEnB) ? {>>8{dataIn}} : {>>8{64'sh0000000000000000}};
+assign dataOut  = {>>{addr[3] ? Cout[7:4] : Cout[3:0]}};
 
-  // MMIO Address		R/W		TPUv1 location
-  // 0x0100 - 0x013f		W		A[0][0], A[0][1], ... A[7][7]
-  // 0x0200 - 0x023f		W		B[0][0], B[0][1], ... B[7][7]
-  // 0x0300 - 0x037f		R & W		C[0][0], C[0][1], ... C[7][7]
-  // 0x0400			W		MatMul (start systolic array computation)
+always_comb begin
+  en = 0;
+  matmul_en = 0;
+  matmul_rst = 1;
+  nxt_state = IDLE;
+  case (curr_state)
+    MATMUL: begin
+      matmul_rst = 0;
+      matmul_en = 1;
+      en = 1;
+      if (matmul_cnt == (DIM*3-2))
+        nxt_state = IDLE;
+      else
+        nxt_state = MATMUL;
+      end
+      default: begin
+        if (addr == 16'h0400 && r_w)
+          nxt_state = MATMUL;
+      end
+  endcase
+end
 
-  assign WrEnA = ((addr[15:8] == 8'h01) && r_w);
-  assign WrEnB = ((addr[15:8] == 8'h02) && r_w);
-  assign WrEnC = ((addr[15:8] == 8'h03) && r_w);
-  
-  assign Arow = addr[5:3];
-  assign Crow = addr[6:4];
+always_ff @(posedge clk or negedge rst_n) begin
+  if (!rst_n) begin
+    curr_state <= IDLE;
+  end else
+    curr_state <= nxt_state;
+end
 
-  typedef enum {IDLE, MATMUL} state;
-  state curr_state, next_state;
-
-  assign {>>{Ain}} = dataIn;
-  assign {>>{Bin}} = dataIn;
-  //assign {>>{Cin[7:0]}} = dataIn; 
-  //assign {>>{Cin[15:8]}} = dataIn;
-  assign {>>{Cin}}  = addr[6] ? {dataIn, {>>{C_memTo_array[7:4]}}} : {{>>{C_memTo_array[3:0]}}, dataIn}; 
-  assign dataOut = C_memTo_array[Crow];
-
-
-  always_ff @(posedge clk, negedge rst_n) begin
-    if (!rst_n) begin
-	curr_state <= IDLE;
-    end else
-	curr_state <= next_state;
-  end
-
-  always_comb begin
-    en = 0;
-    next_state = IDLE;
-    case (curr_state)
-        MATMUL: begin
-            en = 1;
-	        matmul = matmul + 1;
-            if (matmul == (DIM*3 - 2))
-                next_state = IDLE;
-            else
-                next_state = MATMUL;
-        end
-        default: begin
-            matmul = 0;
-            if (addr == (16'h0400 && r_w))
-                next_state = MATMUL;
-        end
-    endcase
-  end
-
-
+always_ff @(posedge clk or negedge rst_n) begin
+  if (!rst_n)
+   matmul_cnt <= '0;
+  else if (matmul_rst)
+   matmul_cnt <= '0;
+  else if (matmul_en)
+   matmul_cnt <= matmul_cnt + 1;
+end
 
 endmodule
