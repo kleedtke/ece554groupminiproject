@@ -1,0 +1,240 @@
+commit 4d521e8eb4a138f5591dd9990b2c2b2c2604f47a
+Author: logansisel <56094407+logansisel@users.noreply.github.com>
+Date:   Thu Feb 11 20:31:25 2021 -0600
+
+    Update tpuv1.sv
+
+commit a653c7f230ae6fd4eb53903c048f8e4373f2eff9
+Author: logansisel <56094407+logansisel@users.noreply.github.com>
+Date:   Thu Feb 11 20:22:26 2021 -0600
+
+    major overhaul
+
+commit 08d9930a4e520f2cc8fb555da1d12ab58171aa6f
+Author: logansisel <56094407+logansisel@users.noreply.github.com>
+Date:   Thu Feb 11 19:11:23 2021 -0600
+
+    Update tpuv1.sv
+
+commit 0aebdb64e2593373206b7f9bef62ad3283ab1661
+Author: logansisel <56094407+logansisel@users.noreply.github.com>
+Date:   Thu Feb 11 18:19:47 2021 -0600
+
+    no compile
+
+commit 8809c2343125a44150f1552dc83c49d0d6d46f66
+Author: Sammy Kleedtke <kleedtke@wisc.edu>
+Date:   Thu Feb 11 17:22:10 2021 -0600
+
+    fixed arow and crow, just need to assign Ain, Bin, Cin, and dataout
+
+commit 9ed8832a1c2fac3a9641951be22405d70622d73b
+Author: Sammy Kleedtke <47486211+kleedtke@users.noreply.github.com>
+Date:   Thu Feb 11 17:00:04 2021 -0600
+
+    for minilab6
+
+commit 0419027a31111b1268f6a3bb94e9c4f584d7f5d9
+Merge: 130964a 7a87212
+Author: Sammy Kleedtke <kleedtke@wisc.edu>
+Date:   Thu Feb 11 14:01:37 2021 -0600
+
+    Merge branch 'main' of https://github.com/kleedtke/ece554groupminiproject into main
+
+commit 130964abc76622dd1aa7a8af442aab86974663b2
+Author: Sammy Kleedtke <kleedtke@wisc.edu>
+Date:   Thu Feb 11 14:01:16 2021 -0600
+
+    added WrEn signals and FSM for matmul
+
+commit 7a8721286de098d13417db9027e97b50da0b9834
+Author: Sammy Kleedtke <47486211+kleedtke@users.noreply.github.com>
+Date:   Thu Feb 11 13:31:43 2021 -0600
+
+    Delete tpuv1_integration_tb.sv
+
+commit 24a6c5783d2b5e6bb2e13e4ca1e5f3a4233a25f2
+Author: adam360x <61172547+adam360x@users.noreply.github.com>
+Date:   Wed Feb 10 23:28:54 2021 -0600
+
+    Update tpuv1.sv
+
+commit d2d4695184d6ccd0bb0ed8edd59a45ddcfa189be
+Author: adam360x <61172547+adam360x@users.noreply.github.com>
+Date:   Wed Feb 10 23:24:32 2021 -0600
+
+    Update tpuv1.sv
+
+commit f5166be0b6db0c84dafd83f4618a9caaa11e5975
+Author: logansisel <56094407+logansisel@users.noreply.github.com>
+Date:   Wed Feb 10 23:19:39 2021 -0600
+
+    added modules
+
+commit 28f8e756eb80b91198cae5601ab58b26761a3d70
+Author: logansisel <56094407+logansisel@users.noreply.github.com>
+Date:   Wed Feb 10 23:14:21 2021 -0600
+
+    added updated TB
+
+commit 1215f7155683be50f4041b9fa800928c70404d74
+Author: adam360x <61172547+adam360x@users.noreply.github.com>
+Date:   Wed Feb 10 23:09:00 2021 -0600
+
+    Update tpuv1.sv
+
+commit a5df817e5163c452852915e5eecba69ba2cbe46f
+Author: adam360x <61172547+adam360x@users.noreply.github.com>
+Date:   Wed Feb 10 23:05:23 2021 -0600
+
+    Update tpuv1.sv
+
+commit e2c51cd8b834d23e903f4cc5ff79a005b41698f9
+Author: logansisel <56094407+logansisel@users.noreply.github.com>
+Date:   Tue Feb 9 19:09:47 2021 -0600
+
+    Create memA_tb.sv
+
+commit 2147ebc675e1b899a7f2f703db810db58a656a97
+Author: logansisel <56094407+logansisel@users.noreply.github.com>
+Date:   Tue Feb 9 18:58:01 2021 -0600
+
+    added fifo and fixed tb
+
+commit 6c8ba1877d1bee40588512f76530d95ee6ef5f2f
+Author: logansisel <56094407+logansisel@users.noreply.github.com>
+Date:   Tue Feb 9 18:52:25 2021 -0600
+
+    added header and gitignore for modelsim work
+
+commit 8f5d9d0fca3988911c1592fc4afe90c4cbe4a0c6
+Author: adam360x <61172547+adam360x@users.noreply.github.com>
+Date:   Tue Feb 9 18:49:11 2021 -0600
+
+    Update memB_tb.sv
+
+commit 1e6809d076a39cfb644cdf7675e152272aac9943
+Author: Sammy Kleedtke <47486211+kleedtke@users.noreply.github.com>
+Date:   Tue Feb 9 18:43:41 2021 -0600
+
+    Delete memory_tb.sv
+
+commit d4ae7833a4ffcffde6595dcaf48d560002706228
+Author: Sammy Kleedtke <47486211+kleedtke@users.noreply.github.com>
+Date:   Tue Feb 9 18:43:29 2021 -0600
+
+    Delete memory_tb.log
+
+commit 8575debe90b3b3c917abd6ae045807518c724b17
+Author: Sammy Kleedtke <47486211+kleedtke@users.noreply.github.com>
+Date:   Tue Feb 9 18:43:06 2021 -0600
+
+    memB testbench
+
+commit 1a49a7de8b4cd5b570c12a896c2a31f30a83c8e5
+Author: logansisel <56094407+logansisel@users.noreply.github.com>
+Date:   Tue Feb 9 18:41:46 2021 -0600
+
+    Added files
+
+commit f630195c035a38f554292f3b98439723781015f6
+Author: adam360x <61172547+adam360x@users.noreply.github.com>
+Date:   Tue Feb 9 18:22:48 2021 -0600
+
+    Update memB_tb.sv
+
+commit 49e99e41a1598e12393b36d70d3b452fe5b1fc83
+Author: adam360x <61172547+adam360x@users.noreply.github.com>
+Date:   Tue Feb 9 18:15:23 2021 -0600
+
+    Create memB_tb.sv
+
+commit b3231b811678db213b84da914d7a8132c69379b4
+Author: logansisel <56094407+logansisel@users.noreply.github.com>
+Date:   Tue Feb 9 18:07:36 2021 -0600
+
+    Update memB.sv
+
+commit 8eb8b148ce84e71d319f61181fa93e44454c7fa5
+Author: adam360x <61172547+adam360x@users.noreply.github.com>
+Date:   Tue Feb 9 18:02:23 2021 -0600
+
+    Update memA.sv
+
+commit 6b1361fab50eb596c804d7a9e01b6c7c0fb14b54
+Author: Sammy Kleedtke <47486211+kleedtke@users.noreply.github.com>
+Date:   Tue Feb 9 18:01:21 2021 -0600
+
+    Update memB.sv
+
+commit 18f53221879f04e94f77578ae07fca3abeef7fd7
+Author: adam360x <61172547+adam360x@users.noreply.github.com>
+Date:   Tue Feb 9 17:55:48 2021 -0600
+
+    Update and rename fifo_transpose.sv to transpose_fifo.sv
+
+commit fe7b3502cd0259632ea4e27e3a0094cd072d93db
+Author: Sammy Kleedtke <47486211+kleedtke@users.noreply.github.com>
+Date:   Tue Feb 9 16:39:42 2021 -0600
+
+    Update README.md
+
+commit df25ac4c3c1309397b1a02c013e2a23f1c3add07
+Author: Sammy Kleedtke <47486211+kleedtke@users.noreply.github.com>
+Date:   Tue Feb 9 16:39:19 2021 -0600
+
+    Update README.md
+
+commit bd429a12c0c4dd1bc32242349e896778b4662137
+Author: Sammy Kleedtke <47486211+kleedtke@users.noreply.github.com>
+Date:   Tue Feb 9 16:38:25 2021 -0600
+
+    Update fifo_transpose.sv
+
+commit fcb6332d40879a23efcdedd5c001099ae39529b2
+Author: Sammy Kleedtke <47486211+kleedtke@users.noreply.github.com>
+Date:   Tue Feb 9 16:10:09 2021 -0600
+
+    Delete transpose_fifo.sv
+
+commit 2d8bb24bc05643938312b52e8b4aec6dc6e2f1f9
+Author: Sammy Kleedtke <kleedtke@wisc.edu>
+Date:   Tue Feb 9 16:07:58 2021 -0600
+
+    mem files and fifo transpose
+
+commit 90e2fe80cc0c6f48c0aac2104fffd62e84bbe253
+Author: Sammy Kleedtke <47486211+kleedtke@users.noreply.github.com>
+Date:   Thu Feb 4 17:56:44 2021 -0600
+
+    Add files via upload
+
+commit a104af9dca364cd38b9476cd77f5ccea63868294
+Author: Sammy Kleedtke <47486211+kleedtke@users.noreply.github.com>
+Date:   Thu Feb 4 17:54:00 2021 -0600
+
+    Update README.md
+
+commit 779e6a1ed6bf6d3100fbf5b1cce38c02d4956771
+Author: Sammy Kleedtke <47486211+kleedtke@users.noreply.github.com>
+Date:   Thu Feb 4 17:52:53 2021 -0600
+
+    Update README.md
+
+commit f3c9c377c28d34bfd7d25c9b52ecf0767d87facd
+Author: Sammy Kleedtke <kleedtke@wisc.edu>
+Date:   Thu Feb 4 17:50:48 2021 -0600
+
+    testbench files and fifo
+
+commit 1fd4d819bce5d7ebdfd9151bd2132b224a7c40e4
+Author: Sammy Kleedtke <kleedtke@wisc.edu>
+Date:   Thu Feb 4 17:48:48 2021 -0600
+
+    memA and memB files
+
+commit bae050ad91777b22fa661a5530891a15fa672779
+Author: Sammy Kleedtke <47486211+kleedtke@users.noreply.github.com>
+Date:   Thu Feb 4 17:43:07 2021 -0600
+
+    Create README.md
