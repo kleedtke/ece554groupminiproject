@@ -24,19 +24,18 @@ logic signed [BITS_C-1:0] Cout [DIM-1:0];
 logic matmul_rst;
 logic matmul_en;
 logic [$clog2(DIM*3)-1:0] matmul_cnt;
+typedef enum {IDLE, MATMUL} state_t;
+state_t curr_state, nxt_state;
+
+systolic_array #(.BITS_AB(BITS_AB), .BITS_C(BITS_C), .DIM(DIM))
+             sA (.clk(clk), .rst_n(rst_n), .WrEn(WrEnC), .en(WrEnC || en),
+                 .A(Amid), .B(Bmid), .Cin(Cin), .Crow(Crow), .Cout(Cout));
 
 memA  #(.BITS_AB(BITS_AB), .DIM(DIM))
   memA (.clk(clk), .rst_n(rst_n), .en(en), .WrEn(WrEnA), .Ain(Ain), .Arow(Arow), .Aout(Amid));
 
 memB  #(.BITS_AB(BITS_AB), .DIM(DIM))
   memB (.clk(clk), .rst_n(rst_n), .en(WrEnB || en), .Bin(Bin), .Bout(Bmid));
-
-systolic_array #(.BITS_AB(BITS_AB), .BITS_C(BITS_C), .DIM(DIM))
-             sA (.clk(clk), .rst_n(rst_n), .WrEn(WrEnC), .en(WrEnC || en),
-                 .A(Amid), .B(Bmid), .Cin(Cin), .Crow(Crow), .Cout(Cout));
-
-typedef enum {IDLE, MATMUL} state_t;
-state_t curr_state, nxt_state;
 
 assign WrEnA = (addr[15:8] == 8'h01) && r_w;
 assign Arow = addr[5:3];
@@ -79,11 +78,11 @@ end
 
 always_ff @(posedge clk or negedge rst_n) begin
   if (!rst_n)
-   matmul_cnt <= '0;
+    matmul_cnt <= '0;
   else if (matmul_rst)
-   matmul_cnt <= '0;
+    matmul_cnt <= '0;
   else if (matmul_en)
-   matmul_cnt <= matmul_cnt + 1;
+    matmul_cnt <= matmul_cnt + 1;
 end
 
 endmodule
