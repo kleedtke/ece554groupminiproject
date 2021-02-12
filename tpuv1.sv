@@ -28,7 +28,7 @@ module tpuv1
   logic [$clog2(DIM*3)-1:0] matmul;
    
   systolic_array #(.BITS_AB(BITS_AB), .BITS_C(BITS_C), .DIM(DIM))
-  		sa(.clk(clk), .rst_n(rst_n), .WrEn(WrEnC), .en(en), .A(Ain), .B(Bin), .Cin(Cin), .Crow(Crow), .Cout(C_memTo_array));
+  	  sa(.clk(clk), .rst_n(rst_n), .WrEn(WrEnC), .en(en), .A(A_memTo_array), .B(B_memTo_array), .Cin(Cin), .Crow(Crow), .Cout(C_memTo_array));
 
   memA #(.BITS_AB(BITS_AB), .DIM(DIM)) // not sure about Arow
       mA(.clk(clk), .rst_n(rst_n), .WrEn(WrEnA), .en(en), .Ain(Ain), .Arow(Arow), .Aout(A_memTo_array));
@@ -42,9 +42,9 @@ module tpuv1
   // 0x0300 - 0x037f		R & W		C[0][0], C[0][1], ... C[7][7]
   // 0x0400			W		MatMul (start systolic array computation)
 
-  assign WrEnA = (addr[15:8] == 8'h01) && r_w;
-  assign WrEnB = (addr[15:8] == 8'h02) && r_w;
-  assign WrEnC = (addr[15:8] == 8'h03) && r_w;
+  assign WrEnA = ((addr[15:8] == 8'h01) && r_w);
+  assign WrEnB = ((addr[15:8] == 8'h02) && r_w);
+  assign WrEnC = ((addr[15:8] == 8'h03) && r_w);
   
   assign Arow = addr[5:3];
   assign Crow = addr[6:4];
@@ -52,10 +52,10 @@ module tpuv1
   typedef enum {IDLE, MATMUL} state;
   state curr_state, next_state;
 
-  // assign Cin = 
-  // assign Ain = 
-  // assign Bin = 
-  // assign dataOut = ... Cout
+  assign Cin = dataIn;
+  assign Ain = dataIn; 
+  assign Bin = dataIn; 
+  assign dataOut = C_memTo_array[Crow];
 
 
   always_ff @(posedge clk, negedge rst_n) begin

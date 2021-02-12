@@ -6,7 +6,7 @@
 
 `include "afu_tc.sv"
 
-module tpuv1_integration_tb();
+module tpuv1_integration_tb_v2();
 
    localparam BITS_AB=8;
    localparam BITS_C=16;
