@@ -52,9 +52,11 @@ module tpuv1
   typedef enum {IDLE, MATMUL} state;
   state curr_state, next_state;
 
-  assign Cin = dataIn;
-  assign Ain = dataIn; 
-  assign Bin = dataIn; 
+  assign {>>{Ain}} = dataIn;
+  assign {>>{Bin}} = dataIn;
+  //assign {>>{Cin[7:0]}} = dataIn; 
+  //assign {>>{Cin[15:8]}} = dataIn;
+  assign {>>{Cin}}  = addr[6] ? {dataIn, {>>{C_memTo_array[7:4]}}} : {{>>{C_memTo_array[3:0]}}, dataIn}; 
   assign dataOut = C_memTo_array[Crow];
 
 
@@ -71,13 +73,14 @@ module tpuv1
     case (curr_state)
         MATMUL: begin
             en = 1;
-	    matmul = matmul + 1;
+	        matmul = matmul + 1;
             if (matmul == (DIM*3 - 2))
                 next_state = IDLE;
             else
                 next_state = MATMUL;
         end
         default: begin
+            matmul = 0;
             if (addr == (16'h0400 && r_w))
                 next_state = MATMUL;
         end
