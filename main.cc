@@ -1,25 +1,10 @@
-// Copyright (c) 2020 University of Florida
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-// Greg Stitt
-// University of Florida
-//
 // This example demonstrates an AFU wrapper class built around the OPAE API 
 // to do the following:
 // 1) request an FPGA with a specific AFU
 // 2) read and write from a memory-mapped register in the FPGA 
+
+// Write new main.cc that handles nxn (n=DIM_FULL) matrix arbitrary n 
+// Test with DIM_FULL=64 and capture output in log file
 
 #include <cstdlib>
 #include <iostream>
@@ -183,10 +168,19 @@ int main(int argc, char *argv[]) {
 
 	fprintf(stdout, "FULL SYSTEM TEST\n---------------\n");
 	fprintf(stdout, "Populating A and B...\n");
+  
+  // check for different dimensions
+  int DIM_FULL = atoi(argv[1]);
+	AB_TYPE A_vals[DIM_FULL][DIM_FULL];
+	AB_TYPE B_vals[DIM_FULL][DIM_FULL];
+	C_TYPE C_vals[DIM_FULL][DIM_FULL];
+	C_TYPE output[DIM_FULL][DIM_FULL];
+	C_TYPE output_reference[DIM_FULL][DIM_FULL];
+    
 	// Generate A vals, B vals.
-	for(int y_ind = 0; y_ind < DIM; ++y_ind)
+	for(int y_ind = 0; y_ind < DIM_FULL; ++y_ind)
 	{
-		for(int x_ind = 0; x_ind < DIM; ++x_ind)
+		for(int x_ind = 0; x_ind < DIM_FULL; ++x_ind)
 		{
 			A_vals[y_ind][x_ind] = static_cast<int8_t>(rand() % 255);
 			B_vals[y_ind][x_ind] = static_cast<int8_t>(rand() % 255);
@@ -196,14 +190,14 @@ int main(int argc, char *argv[]) {
 
 	fprintf(stdout, "Calculating reference values of C...\n");
 	// Calculate reference C values.
-	for(int y_ind = 0; y_ind < DIM; ++y_ind)
+	for(int y_ind = 0; y_ind < DIM_FULL; ++y_ind)
 	{
-		for(int x_ind = 0; x_ind < DIM; ++x_ind)
+		for(int x_ind = 0; x_ind < DIM_FULL; ++x_ind)
 		{
 			// Calculate C
 			output_reference[y_ind][x_ind] = 0;
 
-			for(ptrdiff_t wh = 0; wh < DIM; ++wh)
+			for(ptrdiff_t wh = 0; wh < DIM_FULL; ++wh)
 			{
 				output_reference[y_ind][x_ind] += A_vals[y_ind][wh] * B_vals[wh][x_ind];
 			}
@@ -214,14 +208,14 @@ int main(int argc, char *argv[]) {
 
 	// Write each value of A down.
 	fprintf(stdout, "Loading A into AFU...\n");
-	for(ptrdiff_t a_r = 0; a_r < DIM; ++a_r)
+	for(ptrdiff_t a_r = 0; a_r < DIM_FULL; ++a_r)
 	{
 		send_row_A(a_r, A_vals[a_r], afu);
 	}
 
 	// Push each value of B.
 	fprintf(stdout, "Loading B into AFU...\n");
-	for(ptrdiff_t b_r = 0; b_r < DIM; ++b_r)
+	for(ptrdiff_t b_r = 0; b_r < DIM_FULL; ++b_r)
 	{
 		send_row_B(b_r, B_vals[b_r], afu);
 	}
@@ -235,16 +229,16 @@ int main(int argc, char *argv[]) {
 	// Read Values.
 	fprintf(stdout, "Reading Output from C...\n");
 
-	for(ptrdiff_t c_r = 0; c_r < DIM; ++c_r)
+	for(ptrdiff_t c_r = 0; c_r < DIM_FULL; ++c_r)
 	{
 		unpack_from_C(c_r, output[c_r], afu);
 	}
 
 	// Compare.
 	fprintf(stdout, "Calculation finished. Testing values...\n");
-	for(int r = 0; r < DIM; ++r)
+	for(int r = 0; r < DIM_FULL; ++r)
 	{
-		for(int c = 0; c < DIM; ++c)
+		for(int c = 0; c < DIM_FULL; ++c)
 		{
 			fprintf(stdout, "row: %d, col: %d | got: %hx, expected %hx", r, c, output[r][c], output_reference[r][c]);
 			fflush(stdout);
