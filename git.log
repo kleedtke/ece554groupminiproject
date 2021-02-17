@@ -1,3 +1,69 @@
+commit 1ae319320bbec74d7158d1541a6356469f638380
+Author: u59526 <u59526@s005-n001.aidevcloud>
+Date:   Tue Feb 16 18:30:12 2021 -0800
+
+    added logs
+
+commit cc43187a456bff46399835e4dddeff41a56f8bc6
+Author: adam360x <61172547+adam360x@users.noreply.github.com>
+Date:   Tue Feb 16 20:14:27 2021 -0600
+
+    Create test.cpp
+
+commit d6d9212b0a1f52f315bd91f65e4ea2a498669b3c
+Merge: 8475241 61b9cce
+Author: Sammy Kleedtke <kleedtke@wisc.edu>
+Date:   Tue Feb 16 18:35:31 2021 -0600
+
+    Merge branch 'main' of https://github.com/kleedtke/ece554groupminiproject into main
+
+commit 8475241ba3c9d09d3f9cb5e85366c909c72803ae
+Author: Sammy Kleedtke <kleedtke@wisc.edu>
+Date:   Tue Feb 16 18:35:08 2021 -0600
+
+    ops_rate and compute_ops_rate
+
+commit 61b9cce803e865b167eb9c0f5277a4fc55b9a4b9
+Merge: 4856818 ad01fec
+Author: logansisel <56094407+logansisel@users.noreply.github.com>
+Date:   Tue Feb 16 16:43:28 2021 -0600
+
+    Merge branch 'main' of https://github.com/kleedtke/ece554groupminiproject into main
+
+commit ad01fec45fa88fc48911b55eb3c18608c691855b
+Author: Sammy Kleedtke <47486211+kleedtke@users.noreply.github.com>
+Date:   Tue Feb 16 16:03:09 2021 -0600
+
+    Create main.cc
+    
+    Write new main.cc that handles nxn (n=DIM_FULL) matrix arbitrary n. Test with DIM_FULL=64 and capture output in log file
+
+commit 7213c35cbdac1c8de8b08cbdfecc5aade4579bff
+Author: Sammy Kleedtke <47486211+kleedtke@users.noreply.github.com>
+Date:   Tue Feb 16 15:46:50 2021 -0600
+
+    main.cpp for minilab6
+    
+    Run 8x8 SW testcase (in main.cpp) and capture output in log file
+
+commit 0a2b889a61f8efee3710986f382e61e7d9a93b71
+Author: Sammy Kleedtke <47486211+kleedtke@users.noreply.github.com>
+Date:   Tue Feb 16 15:46:07 2021 -0600
+
+    Delete main.cpp
+
+commit 485681883adfee9925b519c4b125a49c535a8184
+Author: logansisel <56094407+logansisel@users.noreply.github.com>
+Date:   Thu Feb 11 21:49:18 2021 -0600
+
+    Create tb_results.txt
+
+commit 1404c5393bcb28aa659df0b2e99745e5a56d879c
+Author: u59526 <u59526@s005-n002.aidevcloud>
+Date:   Thu Feb 11 19:47:47 2021 -0800
+
+    added git.log
+
 commit 4d521e8eb4a138f5591dd9990b2c2b2c2604f47a
 Author: logansisel <56094407+logansisel@users.noreply.github.com>
 Date:   Thu Feb 11 20:31:25 2021 -0600
