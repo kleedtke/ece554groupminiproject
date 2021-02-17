@@ -28,6 +28,7 @@
 #include <cstdio>
 #include <climits>
 #include <unistd.h>
+#include <time.h> // for time stamps
 
 #include <opae/utils.h>
 
@@ -52,14 +53,25 @@ using namespace std;
 
 typedef int8_t AB_TYPE;
 typedef int16_t C_TYPE;
+#define DIM_FULL 128
 #define DIM 8
 #define MAX_VAL _UI16_MAX
 #define DEBUG true
 
-AB_TYPE A_vals[DIM][DIM];
-AB_TYPE B_vals[DIM][DIM];
-C_TYPE output[DIM][DIM];
-C_TYPE output_reference[DIM][DIM];
+AB_TYPE A_vals[DIM_FULL][DIM_FULL]; 
+AB_TYPE B_vals[DIM_FULL][DIM_FULL]; 
+C_TYPE C_vals[DIM_FULL][DIM_FULL]; // newly created
+// C_TYPE output[DIM_FULL][DIM_FULL]; // replaced by C_vals
+C_TYPE output_reference[DIM_FULL][DIM_FULL];
+
+// return elapsed time (taken from example usage)
+static inline double getTimeDiff(struct timespec start, struct timespec end)
+{
+        uint64_t diff = 1000000000L * (end.tv_sec - start.tv_sec) + end.tv_nsec
+                        - start.tv_nsec;
+        return (double)diff / (double)1000000000L;
+}
+
 
 // Reflect Endian
 template<int width, class BT> BT ref_end(BT in)
@@ -176,17 +188,25 @@ int main(int argc, char *argv[]) {
     // the specified ID
     AFU afu(AFU_ACCEL_UUID);
 
+
         // Seed random generator with "now"
         timeval tv;
 	gettimeofday(&tv, nullptr);
 	srand(tv.tv_usec);
 
+	// instantiate variables for time tracking
+	struct timespec start, end, start_compute, end_compute;
+	double total_compute = 0.0;
+	double total_time = 0.0;
+	double ops_rate, compute_ops_rate;
+	double tops_rate, compute_tops_rate;
+
 	fprintf(stdout, "FULL SYSTEM TEST\n---------------\n");
 	fprintf(stdout, "Populating A and B...\n");
 	// Generate A vals, B vals.
-	for(int y_ind = 0; y_ind < DIM; ++y_ind)
+	for(int y_ind = 0; y_ind < DIM_FULL; ++y_ind)
 	{
-		for(int x_ind = 0; x_ind < DIM; ++x_ind)
+		for(int x_ind = 0; x_ind < DIM_FULL; ++x_ind)
 		{
 			A_vals[y_ind][x_ind] = static_cast<int8_t>(rand() % 255);
 			B_vals[y_ind][x_ind] = static_cast<int8_t>(rand() % 255);
@@ -196,14 +216,14 @@ int main(int argc, char *argv[]) {
 
 	fprintf(stdout, "Calculating reference values of C...\n");
 	// Calculate reference C values.
-	for(int y_ind = 0; y_ind < DIM; ++y_ind)
+	for(int y_ind = 0; y_ind < DIM_FULL; ++y_ind)
 	{
-		for(int x_ind = 0; x_ind < DIM; ++x_ind)
+		for(int x_ind = 0; x_ind < DIM_FULL; ++x_ind)
 		{
 			// Calculate C
 			output_reference[y_ind][x_ind] = 0;
 
-			for(ptrdiff_t wh = 0; wh < DIM; ++wh)
+			for(ptrdiff_t wh = 0; wh < DIM_FULL; ++wh) 
 			{
 				output_reference[y_ind][x_ind] += A_vals[y_ind][wh] * B_vals[wh][x_ind];
 			}
@@ -211,50 +231,90 @@ int main(int argc, char *argv[]) {
 	}
 
 	// Now try it with the AFU.
+	// grab initial time stamp
+	if (clock_gettime(CLOCK_MONOTONIC, &start)!=0) // error check
+	      cerr << "ERROR: Couldn't clock_gettime()." << endl;
 
-	// Write each value of A down.
-	fprintf(stdout, "Loading A into AFU...\n");
-	for(ptrdiff_t a_r = 0; a_r < DIM; ++a_r)
-	{
-		send_row_A(a_r, A_vals[a_r], afu);
-	}
+	// start block loop
+	for (int i = 0; i<DIM_FULL; i+=8) { // iterate over block rows of C
+		for (int j = 0; j<DIM_FULL; j+=8) { // iterate over block cols of C
+			// send block of C
+			for(ptrdiff_t c_r = 0; c_r < DIM; ++c_r) {// "ii"
+				send_row_C(c_r, C_vals[c_r+i]+j, afu);
+			} // end for ii
+			
+			for (int k = 0; k<DIM_FULL; k+=8) { // iterate over block products
+				// Write each value of A down.
+				fprintf(stdout, "Loading A into AFU...\n");
+				for(ptrdiff_t a_r = 0; a_r < DIM; ++a_r) // "ii"
+				{
+					send_row_A(a_r, A_vals[a_r+i]+k, afu);
+				}
 
-	// Push each value of B.
-	fprintf(stdout, "Loading B into AFU...\n");
-	for(ptrdiff_t b_r = 0; b_r < DIM; ++b_r)
-	{
-		send_row_B(b_r, B_vals[b_r], afu);
-	}
+				// Push each value of B.
+				fprintf(stdout, "Loading B into AFU...\n");
+				for(ptrdiff_t b_r = 0; b_r < DIM; ++b_r) //"ii"
+				{
+					send_row_B(b_r, B_vals[b_r+k]+j, afu);
+				}
 
-	// Calculate
-	fprintf(stdout, "Performing Calculation...\n");
-	afu.write(0x0400, 100);
-	// Do we have to sleep?
-//	usleep(1000*1000);
+				// grab time stamp before matmul
+				if (clock_gettime(CLOCK_MONOTONIC, &start_compute)!=0) // error check
+				      cerr << "ERROR: Couldn't clock_gettime()." << endl;
+				// perform 8x8 block mult      
+				// Calculate
+				fprintf(stdout, "Performing Calculation...\n");
+				afu.write(0x0400, 100);
+				// Do we have to sleep?
+				//usleep(1000*1000);
+				// time stamp right after matmul
+				if (clock_gettime(CLOCK_MONOTONIC, &end_compute)!=0) // error check
+				      cerr << "ERROR: Couldn't clock_gettime()." << endl;
+				total_compute += getTimeDiff(start_compute,end_compute);// (end_compute - start_compute)
+			} // end for k, move to next A/B block (C is stationary)
 
-	// Read Values.
-	fprintf(stdout, "Reading Output from C...\n");
+			// retrieve block of C
+			// Read Values.
+			fprintf(stdout, "Reading Output from C...\n");
+			for(ptrdiff_t c_r = 0; c_r < DIM; ++c_r) // "ii"
+			{
+				unpack_from_C(c_r, C_vals[c_r+i]+j, afu);
+			}
+		} // end for j
+	} // end for i
+	// end block loop	
 
-	for(ptrdiff_t c_r = 0; c_r < DIM; ++c_r)
-	{
-		unpack_from_C(c_r, output[c_r], afu);
-	}
+	// grab final time stamp
+	if (clock_gettime(CLOCK_MONOTONIC, &end)!=0) // error check
+	      cerr << "ERROR: Couldn't clock_gettime()." << endl;
+
 
 	// Compare.
 	fprintf(stdout, "Calculation finished. Testing values...\n");
-	for(int r = 0; r < DIM; ++r)
+	for(int r = 0; r < DIM_FULL; ++r)
 	{
-		for(int c = 0; c < DIM; ++c)
+		for(int c = 0; c < DIM_FULL; ++c)
 		{
-			fprintf(stdout, "row: %d, col: %d | got: %hx, expected %hx", r, c, output[r][c], output_reference[r][c]);
+			fprintf(stdout, "row: %d, col: %d | got: %hx, expected %hx", r, c, C_vals[r][c], output_reference[r][c]); // output originally
 			fflush(stdout);
-			assert(output[r][c] == output_reference[r][c]);
+			assert(C_vals[r][c] == output_reference[r][c]); // output[r][c] == originally
 			fprintf(stdout, " [OK]\n");
 		}
 	}
 
 	fprintf(stdout, "All tests passed. No errors detected.\n");
 
+	// output final time readings
+	total_time = getTimeDiff(start, end); // end - start
+	ops_rate = (2 * pow(DIM_FULL, 3)) / total_time;  // MM is O(n^3) MACs, each MAC is 2 ops
+	compute_ops_rate = (2 * pow(DIM_FULL, 3)) / total_compute; // TOPS ignoring data movement
+	tops_rate = ops_rate / (1000000000000); // 10^12
+	compute_tops_rate = compute_ops_rate / (1000000000000); // 10^12
+
+	fprintf(stdout, "DIM_FULL=%d\n",DIM_FULL);
+	fprintf(stdout, "tops_rate: %f\n", tops_rate);// %f float %L long
+	fprintf(stdout, "compute_tops_rate: %f\n", compute_tops_rate);// %f float %L long
+	
 	return 0;    
   }
   // Exception handling for all the runtime errors that can occur within 
