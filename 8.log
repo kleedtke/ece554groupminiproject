@@ -1,0 +1,109 @@
+FULL SYSTEM TEST
+---------------
+Populating A and B...
+Calculating reference values of C...
+CWRITE: low word, high word, address 0 | 0 @300 @308
+CWRITE: low word, high word, address 0 | 0 @310 @318
+CWRITE: low word, high word, address 0 | 0 @320 @328
+CWRITE: low word, high word, address 0 | 0 @330 @338
+CWRITE: low word, high word, address 0 | 0 @340 @348
+CWRITE: low word, high word, address 0 | 0 @350 @358
+CWRITE: low word, high word, address 0 | 0 @360 @368
+CWRITE: low word, high word, address 0 | 0 @370 @378
+Loading A into AFU...
+data word val, addr: cb58fc1d90ab6b95 | 100
+data word val, addr: 1c75d6569b041e6a | 108
+data word val, addr: a75e2940fe14cbc3 | 110
+data word val, addr: 723e33f1356d9559 | 118
+data word val, addr: 93b9f1ec1c1a70d7 | 120
+data word val, addr: f015343112d97060 | 128
+data word val, addr: 766093a5ad1d865 | 130
+data word val, addr: 6fc6bceb6c1c1545 | 138
+Loading B into AFU...
+data word val, addr: 8fe17864908b4011 | 200
+data word val, addr: 8ab16f41d7a7cce4 | 208
+data word val, addr: 48f498fcb05cee87 | 210
+data word val, addr: 250e70c4431dcc5 | 218
+data word val, addr: 929acac4d9ef6b3e | 220
+data word val, addr: 6da66f45cc254e29 | 228
+data word val, addr: 471c744c3e757fe1 | 230
+data word val, addr: 2c2e02a0cd2720f6 | 238
+Performing Calculation...
+Reading Output from C...
+low word, high word, address 36c1f55c152d2cfa | e643c2e049511393 @300 @308
+low word, high word, address c2eee130770517fc | b225c87c57d124fc @310 @318
+low word, high word, address 32d05430452406ea | 39b2e88ef2ac13a4 @320 @328
+low word, high word, address c67263e95325ca74 | 6a0e31020021014c @330 @338
+low word, high word, address 9edc89c9b75e3e5 | c1c9dbd3ecbd21c5 @340 @348
+low word, high word, address cb47ae0a2e341ab0 | 9b55b2e281405228 @350 @358
+low word, high word, address d750d37667c0f6b | e1be10954e3f32bd @360 @368
+low word, high word, address df3de5decf6fcedf | cfa53f7ae10fdca9 @370 @378
+Calculation finished. Testing values...
+row: 0, col: 0 | got: 2cfa, expected 2cfa [OK]
+row: 0, col: 1 | got: 152d, expected 152d [OK]
+row: 0, col: 2 | got: f55c, expected f55c [OK]
+row: 0, col: 3 | got: 36c1, expected 36c1 [OK]
+row: 0, col: 4 | got: 1393, expected 1393 [OK]
+row: 0, col: 5 | got: 4951, expected 4951 [OK]
+row: 0, col: 6 | got: c2e0, expected c2e0 [OK]
+row: 0, col: 7 | got: e643, expected e643 [OK]
+row: 1, col: 0 | got: 17fc, expected 17fc [OK]
+row: 1, col: 1 | got: 7705, expected 7705 [OK]
+row: 1, col: 2 | got: e130, expected e130 [OK]
+row: 1, col: 3 | got: c2ee, expected c2ee [OK]
+row: 1, col: 4 | got: 24fc, expected 24fc [OK]
+row: 1, col: 5 | got: 57d1, expected 57d1 [OK]
+row: 1, col: 6 | got: c87c, expected c87c [OK]
+row: 1, col: 7 | got: b225, expected b225 [OK]
+row: 2, col: 0 | got: 6ea, expected 6ea [OK]
+row: 2, col: 1 | got: 4524, expected 4524 [OK]
+row: 2, col: 2 | got: 5430, expected 5430 [OK]
+row: 2, col: 3 | got: 32d0, expected 32d0 [OK]
+row: 2, col: 4 | got: 13a4, expected 13a4 [OK]
+row: 2, col: 5 | got: f2ac, expected f2ac [OK]
+row: 2, col: 6 | got: e88e, expected e88e [OK]
+row: 2, col: 7 | got: 39b2, expected 39b2 [OK]
+row: 3, col: 0 | got: ca74, expected ca74 [OK]
+row: 3, col: 1 | got: 5325, expected 5325 [OK]
+row: 3, col: 2 | got: 63e9, expected 63e9 [OK]
+row: 3, col: 3 | got: c672, expected c672 [OK]
+row: 3, col: 4 | got: 14c, expected 14c [OK]
+row: 3, col: 5 | got: 21, expected 21 [OK]
+row: 3, col: 6 | got: 3102, expected 3102 [OK]
+row: 3, col: 7 | got: 6a0e, expected 6a0e [OK]
+row: 4, col: 0 | got: e3e5, expected e3e5 [OK]
+row: 4, col: 1 | got: 9b75, expected 9b75 [OK]
+row: 4, col: 2 | got: c89c, expected c89c [OK]
+row: 4, col: 3 | got: 9ed, expected 9ed [OK]
+row: 4, col: 4 | got: 21c5, expected 21c5 [OK]
+row: 4, col: 5 | got: ecbd, expected ecbd [OK]
+row: 4, col: 6 | got: dbd3, expected dbd3 [OK]
+row: 4, col: 7 | got: c1c9, expected c1c9 [OK]
+row: 5, col: 0 | got: 1ab0, expected 1ab0 [OK]
+row: 5, col: 1 | got: 2e34, expected 2e34 [OK]
+row: 5, col: 2 | got: ae0a, expected ae0a [OK]
+row: 5, col: 3 | got: cb47, expected cb47 [OK]
+row: 5, col: 4 | got: 5228, expected 5228 [OK]
+row: 5, col: 5 | got: 8140, expected 8140 [OK]
+row: 5, col: 6 | got: b2e2, expected b2e2 [OK]
+row: 5, col: 7 | got: 9b55, expected 9b55 [OK]
+row: 6, col: 0 | got: f6b, expected f6b [OK]
+row: 6, col: 1 | got: 667c, expected 667c [OK]
+row: 6, col: 2 | got: d37, expected d37 [OK]
+row: 6, col: 3 | got: d75, expected d75 [OK]
+row: 6, col: 4 | got: 32bd, expected 32bd [OK]
+row: 6, col: 5 | got: 4e3f, expected 4e3f [OK]
+row: 6, col: 6 | got: 1095, expected 1095 [OK]
+row: 6, col: 7 | got: e1be, expected e1be [OK]
+row: 7, col: 0 | got: cedf, expected cedf [OK]
+row: 7, col: 1 | got: cf6f, expected cf6f [OK]
+row: 7, col: 2 | got: e5de, expected e5de [OK]
+row: 7, col: 3 | got: df3d, expected df3d [OK]
+row: 7, col: 4 | got: dca9, expected dca9 [OK]
+row: 7, col: 5 | got: e10f, expected e10f [OK]
+row: 7, col: 6 | got: 3f7a, expected 3f7a [OK]
+row: 7, col: 7 | got: cfa5, expected cfa5 [OK]
+Hurray!! Tests passed. No errors.
+Ran with DIM_FULL = 8
+tops: 0.000015
+compute tops: 0.000923
