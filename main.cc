@@ -13,9 +13,9 @@
 #include <cstdio>
 #include <climits>
 #include <unistd.h>
-
+#include <time.h>
 #include <opae/utils.h>
-
+#include <math.h>
 #include "AFU.h"
 
 using namespace std;
@@ -161,16 +161,16 @@ int main(int argc, char *argv[]) {
     // the specified ID
     AFU afu(AFU_ACCEL_UUID);
 
-        // Seed random generator with "now"
-        timeval tv;
+    // Seed random generator with "now"
+    timeval tv;
 	gettimeofday(&tv, nullptr);
 	srand(tv.tv_usec);
 
 	fprintf(stdout, "FULL SYSTEM TEST\n---------------\n");
 	fprintf(stdout, "Populating A and B...\n");
   
-  // check for different dimensions
-  int DIM_FULL = atoi(argv[1]);
+  	// different dimensions
+  	int DIM_FULL = atoi(argv[1]);
 	AB_TYPE A_vals[DIM_FULL][DIM_FULL];
 	AB_TYPE B_vals[DIM_FULL][DIM_FULL];
 	C_TYPE C_vals[DIM_FULL][DIM_FULL];
@@ -184,6 +184,7 @@ int main(int argc, char *argv[]) {
 		{
 			A_vals[y_ind][x_ind] = static_cast<int8_t>(rand() % 255);
 			B_vals[y_ind][x_ind] = static_cast<int8_t>(rand() % 255);
+			C_vals[y_ind][x_ind] = static_cast<int8_t>(0); // set all to 0
 		}
 	}
 
@@ -206,40 +207,62 @@ int main(int argc, char *argv[]) {
 
 	// Now try it with the AFU.
 
-	// Write each value of A down.
-	fprintf(stdout, "Loading A into AFU...\n");
-	for(ptrdiff_t a_r = 0; a_r < DIM_FULL; ++a_r)
-	{
-		send_row_A(a_r, A_vals[a_r], afu);
+	struct timespec start, start_compute, end, end_compute;
+	double total_compute;
+	// grab initial time stamp
+	clock_gettime(CLOCK_REALTIME, &start);
+
+	// iterate over block rows of C and block columns of C
+	for (ptrdiff_t block_row = 0; block_row < (DIM_FULL/8); block_row++) {
+		for (ptrdiff_t block_col = 0; block_col < (DIM_FULL/8); block_col++) {	
+			
+			// send block of C
+			for(ptrdiff_t c_r = 0; c_r < 8; ++c_r) {
+				send_row_C(c_r, C_vals[c_r], afu);
+			}
+		
+			// iterate over block dot products
+			for(ptrdiff_t block_dot = 0; block_dot < (DIM_FULL/8); ++block_dot) {
+				// Write each value of A down.
+				fprintf(stdout, "Loading A into AFU...\n");
+				for(ptrdiff_t a_r = 0; a_r < 8; ++a_r) {
+					send_row_A(a_r, A_vals[a_r], afu);
+				}
+	
+				// Push each value of B.
+				fprintf(stdout, "Loading B into AFU...\n");
+				for(ptrdiff_t b_r = 0; b_r < 8; ++b_r) {
+					send_row_B(b_r, B_vals[b_r], afu);
+				}
+			
+				// Calculate
+				fprintf(stdout, "Performing Calculation...\n");
+				// grab time stamp right before matmul
+				clock_gettime(CLOCK_REALTIME, &start_compute);	
+				afu.write(0x0400, 100); // matmul
+				// grab time stamp right after matmul
+				clock_gettime(CLOCK_REALTIME, &end_compute);	
+				total_compute += (end_compute - start_compute);
+				
+				// Do we have to sleep?
+				// usleep(1000*1000);
+			}
+			
+			// Read Values.
+			fprintf(stdout, "Reading Output from C...\n");
+			for(ptrdiff_t c_r = 0; c_r < 8; ++c_r) {
+				unpack_from_C(c_r, output[c_r], afu);
+			}
+		}
 	}
-
-	// Push each value of B.
-	fprintf(stdout, "Loading B into AFU...\n");
-	for(ptrdiff_t b_r = 0; b_r < DIM_FULL; ++b_r)
-	{
-		send_row_B(b_r, B_vals[b_r], afu);
-	}
-
-	// Calculate
-	fprintf(stdout, "Performing Calculation...\n");
-	afu.write(0x0400, 100);
-	// Do we have to sleep?
-//	usleep(1000*1000);
-
-	// Read Values.
-	fprintf(stdout, "Reading Output from C...\n");
-
-	for(ptrdiff_t c_r = 0; c_r < DIM_FULL; ++c_r)
-	{
-		unpack_from_C(c_r, output[c_r], afu);
-	}
+	
+	// grab final time stamp
+	clock_gettime(CLOCK_REALTIME, &end);
 
 	// Compare.
 	fprintf(stdout, "Calculation finished. Testing values...\n");
-	for(int r = 0; r < DIM_FULL; ++r)
-	{
-		for(int c = 0; c < DIM_FULL; ++c)
-		{
+	for(int r = 0; r < DIM_FULL; ++r) {
+		for(int c = 0; c < DIM_FULL; ++c) {
 			fprintf(stdout, "row: %d, col: %d | got: %hx, expected %hx", r, c, output[r][c], output_reference[r][c]);
 			fflush(stdout);
 			assert(output[r][c] == output_reference[r][c]);
@@ -248,6 +271,17 @@ int main(int argc, char *argv[]) {
 	}
 
 	fprintf(stdout, "All tests passed. No errors detected.\n");
+	
+	// total_time = end - start
+	long double total_time = (end - start);
+	// ops_rate = 2*n^3 / total_time
+	long double ops_rate = (2 * pow(dim, 3)) / total_time;
+	// compute_ops_rate = 2*n^3 / total_compute
+	long double compute_ops_rate = (2 * pow(dim,3)) / total_compute;
+	
+	// print values
+	fprintf(stdout, "ops_rate = %Le ops/sec\n", ops_rate);
+	fprintf(stdout, "compute_ops_rate = %Le ops/sec\n", compute_ops_rate);
 
 	return 0;    
   }
